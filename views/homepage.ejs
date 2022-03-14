@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Project One</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+      <div class="container">
+          <h1 class="text-center">Youtube videos Info</h1>
+          <form id="form">
+              <div class="form-group">
+                  <label for="searchquery">Search here</label>
+                  <input type="text" required placeholder="Enter your search query" id="searchid" class="form-control">
+              </div>
+              <div class="form-group">
+                  <button id="button" class="btn btn-danger btn-block">
+                      Get Info
+                  </button>
+              </div>
+          </form>
+        <div id="result"></div>
+      </div>
+</body>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script>
+      var result
+      $("#form").submit(function(e){
+          e.preventDefault()
+
+          $("#result").empty()
+
+          $("#button").text("Please Wait Fetching Info")
+
+          $("#button").prop("disabled","true")
+
+          var name = $("#searchid").val()
+          
+          name = name.trim()
+
+          name = name.split(" ").join("");
+
+          $.ajax({
+              method:"GET",
+              url:"/api/data/search-channel",
+              data:{
+                ajaxid: 4, 
+                channelid:name
+              },
+              success:function(data){
+                console.log("in index.js file")
+
+                $("#button").text("Get Info")
+
+                $("#button").removeAttr("disabled")
+
+                $("#searchid").val("")
+
+                result = `
+                
+                <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Channel Name</th>
+        <th>Video Title</th>
+        <th>Channel description</th>
+        <th>publishedAt</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>${data.data.channelTitle}</td>
+        <td>${data.data.title}</td>
+        <td>${data.data.description}</td>
+        <td>${data.data.publishedAt}</td>
+      </tr>
+    </tbody>
+  </table> `
+                $("#result").append(result)
+              }
+
+          })
+
+
+      })
+  </script>
+</html>
+
