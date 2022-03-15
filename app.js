@@ -4,6 +4,7 @@ const morgan = require('morgan')
 const bodyparser = require('body-parser')
 const path = require('path')
 const controller = require('./server/controller/controller')
+const moment = require('moment')
 
 const app = express()
 
@@ -42,7 +43,6 @@ setInterval(function () {
   controller.fetchDetails()
   // do your stuff here
 }, the_interval);
-
 
 
 

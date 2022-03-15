@@ -7,20 +7,15 @@ const tokens = require("../utils/token.json")
 const credentials = require('../utils/credentials.json')
 
 
-
-
-
-
 exports.fetchDetails = async (req, res) => {
-
-
+let date = new Date()
   const requestPayload = {
     method: 'get',
     url: 'https://www.googleapis.com/youtube/v3/search',
     params: {
       'key': credentials.web.API_KEY,
       'type': 'video',
-      'publishedAfter': '2022-03-08T00:00:00Z',
+      'publishedAfter': new Date(date.setDate(date.getDate()-1)) ,
       'order': 'date',
       'part': 'snippet',
       'relevanceLanguage': 'en'

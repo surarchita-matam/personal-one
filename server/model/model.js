@@ -3,81 +3,83 @@ const mongoose = require('mongoose');
 
 
 
- 
+
 let schema = new mongoose.Schema({
-   id :{
-       type : String,
-       required : true,
-       unique : true
-   },
-   publishedAt : Date,
-   title : String,
-   description : String,
-   channelTitle : String
+  id: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  publishedAt: Date,
+  title: String,
+  description: String,
+  channelTitle: String
 })
 
-schema.index({"title":"text", "description":"text"});
+schema.index({ "title": "text", "description": "text" });
 
 let Projectone = mongoose.model('projectone', schema)
 
 
-const storeDetails=(data)=>{
-
-  data.forEach(item=>{
-    const projectOneFiles= new Projectone({
+const storeDetails = (data) => {
+  let projectFiles = []
+  data.forEach(item => {
+    projectFiles.push({
       id: item.id.videoId,
-      publishedAt : item.snippet.publishedAt,
-       title : item.snippet.title,
-       description : item.snippet.description,
-       channelTitle : item.snippet.channelTitle
+      publishedAt: item.snippet.publishedAt,
+      title: item.snippet.title,
+      description: item.snippet.description,
+      channelTitle: item.snippet.channelTitle
     })
-    
-    projectOneFiles.save(projectOneFiles)
-    .then(data=>{
+  });
+
+
+  Projectone.insertMany(projectFiles)
+    .then(data => {
       console.log(data)
-      
+
     })
-    .catch(err=>{
-     console.log(err)
+    .catch(err => {
+      console.log(err)
     })
-  })
+
 }
 
-const retriveDetails= (channelid, input= false)=>{
+const retriveDetails = (channelid, input = false) => {
 
-  if(!input){
+  if (!input) {
     return new Promise(async (resolve, reject) => {
-      let result = await Projectone.findOne({id: channelid})
-    
-        console.log(result)
-        resolve(result)
+      let result = await Projectone.findOne({ id: channelid })
+
+      console.log(result)
+      resolve(result)
     })
-    
+
   }
-  else{
+  else {
     console.log('input', input)
     var searchRegex = new RegExp(input);
     return new Promise(async (resolve, reject) => {
       var regexSearchOptions = {
         "title": {
           "$regex": searchRegex,
-          '$options' : 'i'
+          '$options': 'i'
         }
       };
       // let result = await Projectone.find({"$text":{"$search":`${input}`}})
-      let result = await Projectone.find(regexSearchOptions).sort({publishedAt : -1})
-    
-        console.log(result)
-        resolve(result)
+      let result = await Projectone.find(regexSearchOptions).sort({ publishedAt: -1 })
+
+      console.log(result)
+      resolve(result)
     })
   }
-  
+
 }
 
 
 
 
-module.exports= {
+module.exports = {
   storeDetails,
   retriveDetails,
 }
