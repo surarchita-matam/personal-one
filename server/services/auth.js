@@ -32,7 +32,7 @@ const authorize = (req, res) => {
   return res.render('auth', { link: loginLink });
 };
 
-const getAccessToken = (req, res) => {
+const getAccessToken = async (req, res) => {
   // Create an OAuth2 client object from the credentials 
   const oauth2Client = new OAuth2(
     credentials.web.client_id,

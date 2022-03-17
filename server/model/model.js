@@ -16,7 +16,7 @@ let schema = new mongoose.Schema({
   channelTitle: String
 })
 
-schema.index({ "title": "text", "description": "text" });
+schema.index({ title: "text", description: "text" });
 
 let Projectone = mongoose.model('projectone', schema)
 
@@ -64,10 +64,15 @@ const retriveDetails = (channelid, input = false) => {
         "title": {
           "$regex": searchRegex,
           '$options': 'i'
-        }
+          }
       };
-      // let result = await Projectone.find({"$text":{"$search":`${input}`}})
-      let result = await Projectone.find(regexSearchOptions).sort({ publishedAt: -1 })
+      // let result = await Projectone.find(
+      //   {"$text":{"$search":input}},
+      // { score: { $meta: "textScore" } }
+      // ).sort( { score: { $meta: "textScore" } } )
+      let result = await Projectone.find(regexSearchOptions,
+          //  {score: { "$meta": "textScore" }}
+           ).sort({ publishedAt: -1 })
 
       console.log(result)
       resolve(result)
