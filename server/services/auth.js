@@ -2,16 +2,24 @@ const express = require("express");
 const google = require("googleapis").google;
 const path = require('path')
 const fs = require('fs')
+const controller = require("../controller/controller")
+const { storeUsers } = require("../model/model")
 
 // Google's OAuth2 client
 const OAuth2 = google.auth.OAuth2
 
 
-const credentials = require("../utils/credentials.json")
+
+const credentials = require("../utils/credentials.json");
+const { nextTick } = require("process");
 
 const TOKEN_PATH = path.resolve(__dirname, "../utils/token.json")
 
-const SCOPES = ["https://www.googleapis.com/auth/youtube"]
+const SCOPES = [
+  "https://www.googleapis.com/auth/youtube",
+  "https://www.googleapis.com/auth/userinfo.profile",
+  "https://www.googleapis.com/auth/userinfo.email"
+]
 
 
 const authorize = (req, res) => {
@@ -44,20 +52,37 @@ const getAccessToken = async (req, res) => {
     // The user did not give us permission.
     return res.redirect("/");
   } else {
-    oauth2Client.getToken(req.query.code, function (err, token) {
-      if (err) return res.redirect("/");
-      console.log(token)
+    let { tokens } = oauth2Client.getToken(req.query.code)
+
+    oauth2Client.setCredentials(tokens);
+
+    let userdetails;
+    let user
+    oauth2Client.on('tokens', async (tokens) => {
+
+      //https://www.googleapis.com/oauth2/v3/userinfo
+      let refresh_token = tokens.refresh_token ? tokens.refresh_token : false
 
       // Storing the token in the token.json
       fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
         if (err) console.log(`error while writing the token.json file ${err}`)
-
-        console.log(`Token has been stored to ${TOKEN_PATH}`)
-
       })
+      userdetails = await controller.userInfo(tokens.access_token, refresh_token)
+      console.log(userdetails, "userdetails11")
+      let session = req.session
+      session.userid = userdetails.sub
+      session.username = userdetails.given_name
+      session.picture = userdetails.picture
+      session.email = userdetails.email
+      req.session.save();
+      console.log(req.session, 'in session line 71')
 
-      return res.redirect("/homepage/search");
+      await storeUsers(userdetails, tokens.access_token, refresh_token)
+
     });
+
+    return res.redirect("/homepage/search");
+
   }
 };
 

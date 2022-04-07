@@ -2,80 +2,77 @@
 <html>
   <head>
     <title>Project One</title>
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-    />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
   </head>
   <body>
-      <div class="container">
-          <h1 class="text-center">Youtube videos Info</h1>
-          <form id="form">
-              <div class="form-group">
-                  <label for="searchquery">Search here</label>
-                  <input type="text" required placeholder="Enter your search query" id="searchid" class="form-control">
-              </div>
-              <div class="form-group">
-                  <button id="button" class="btn btn-danger btn-block">
-                      Get Info
-                  </button>
-              </div>
-          </form>
-        <div id="result"></div>
-      </div>
-</body>
+    <a href="/logout">
+      <button id="button" class="btn btn-danger border-shadow" style="float: right">Log out</button>
+    </a>
+    <img src="<%= profilepic %>" alt="" style="float: left" />
+    <h1 class="text-center" style="float: initial">Welcome <%= username %></h1>
+
+    <div class="container">
+      <h1 class="text-center">Youtube videos Info</h1>
+      <form id="form">
+        <div class="form-group">
+          <label for="searchquery">Search here</label>
+          <input type="text" required placeholder="Enter your search query" id="searchid" class="form-control" />
+        </div>
+        <div class="form-group">
+          <button id="button" class="btn btn-danger btn-block">Get Info</button>
+        </div>
+      </form>
+      <div id="result"></div>
+    </div>
+  </body>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script>
-      var result
-      $("#form").submit(function(e){
-          e.preventDefault()
+    var result
+    $("#form").submit(function (e) {
+      e.preventDefault()
 
-          $("#result").empty()
+      $("#result").empty()
 
-          $("#button").text("Please Wait Fetching Info")
+      $("#button").text("Please Wait Fetching Info")
 
-          $("#button").prop("disabled","true")
+      $("#button").prop("disabled", "true")
 
-          var name = $("#searchid").val()
-          
-       
+      var name = $("#searchid").val()
 
-          $.ajax({
-              method:"GET",
-              url:"/api/data/search",
-              data:{
-                ajaxid: 4, 
-                input: name
-              },
-              success:function(data){
-                console.log(data, "in index.js file")
+      $.ajax({
+        method: "GET",
+        url: "/api/data/search",
+        data: {
+          ajaxid: 4,
+          input: name
+        },
+        success: function (data) {
+          console.log(data, "in index.js file")
 
-                $("#button").text("Get Info")
+          $("#button").text("Get Info")
 
-                $("#button").removeAttr("disabled")
+          $("#button").removeAttr("disabled")
 
-                $("#searchid").val("")
+          $("#searchid").val("")
 
-                function show(data){
-                  let tabledata='';
-                  console.log(data, "in show")
-                  if(data && data.data && data.data.length >= 1){
-                    let formdata= data.data
-                    for(i=0; i < formdata.length ; i++){
-                      tabledata+='<tr>' + '<td>' + formdata[i].channelTitle + '</td>'
-                      tabledata+='<td>' + formdata[i].title + '</td>'
-                      tabledata+='<td>' + formdata[i].description + '</td>'
-                      tabledata+='<td>' + formdata[i].publishedAt + '</td>' + '</tr>'
-                    }
-                    return tabledata
+          function show(data) {
+            let tabledata = ""
+            console.log(data, "in show")
+            if (data && data.data && data.data.length >= 1) {
+              let formdata = data.data
+              for (i = 0; i < formdata.length; i++) {
+                tabledata += "<tr>" + "<td>" + formdata[i].channelTitle + "</td>"
+                tabledata += "<td>" + formdata[i].title + "</td>"
+                tabledata += "<td>" + formdata[i].description + "</td>"
+                tabledata += "<td>" + formdata[i].publishedAt + "</td>" + "</tr>"
+              }
+              return tabledata
+            } else {
+              return `<tr>No data Found</tr>`
+            }
+          }
 
-                  }
-                  else{
-                    return `<tr>No data Found</tr>`
-                  }
-                }
-                  
-                result = `
+          result = `
                 <table class="table table-striped">
     <thead>
       <tr>
@@ -89,14 +86,9 @@
    ${show(data)}
     </tbody>
   </table>`
-                $("#result").append(result)
-              }
-
-          })
-
-
+          $("#result").append(result)
+        }
       })
+    })
   </script>
 </html>
-
-
