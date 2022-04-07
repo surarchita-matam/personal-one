@@ -55,7 +55,9 @@ const getAccessToken = async (req, res) => {
     let { tokens } = oauth2Client.getToken(req.query.code)
 
     oauth2Client.setCredentials(tokens);
-
+    // fs.writeFile(TOKEN_PATH, JSON.stringify(tokens), (err) => {
+    //   if (err) console.log(`error while writing the token.json file ${err}`)
+    // })
     let userdetails;
     let user
     oauth2Client.on('tokens', async (tokens) => {
@@ -64,9 +66,7 @@ const getAccessToken = async (req, res) => {
       let refresh_token = tokens.refresh_token ? tokens.refresh_token : false
 
       // Storing the token in the token.json
-      fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-        if (err) console.log(`error while writing the token.json file ${err}`)
-      })
+
       userdetails = await controller.userInfo(tokens.access_token, refresh_token)
       console.log(userdetails, "userdetails11")
       let session = req.session
@@ -82,6 +82,9 @@ const getAccessToken = async (req, res) => {
     });
 
     return res.redirect("/homepage/search");
+
+
+
 
   }
 };
