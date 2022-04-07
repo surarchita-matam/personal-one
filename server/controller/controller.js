@@ -7,15 +7,35 @@ const tokens = require("../utils/token.json")
 const credentials = require('../utils/credentials.json')
 
 
+
+exports.userInfo = async (access_token, refresh_token) => {
+
+  const requestPayload = {
+    method: 'get',
+    url: 'https://www.googleapis.com/oauth2/v3/userinfo',
+    headers: {
+      "Authorization": `Bearer ${access_token}`,
+      "Host": "www.googleapis.com"
+    }
+  }
+  const { data: response } = await axios(requestPayload);
+  console.log("response", response)
+  return response
+
+}
+
+
 exports.fetchDetails = async (req, res) => {
-let date = new Date()
+  // console.log(req.session, "infetchdetails")
+  // let access_token = await storeModel.retrieveTokens()
+  let date = new Date()
   const requestPayload = {
     method: 'get',
     url: 'https://www.googleapis.com/youtube/v3/search',
     params: {
       'key': credentials.web.API_KEY,
       'type': 'video',
-      'publishedAfter': new Date(date.setDate(date.getDate()-1)) ,
+      'publishedAfter': new Date(date.setDate(date.getDate() - 1)),
       'order': 'date',
       'part': 'snippet',
       'relevanceLanguage': 'en'

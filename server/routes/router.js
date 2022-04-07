@@ -21,7 +21,16 @@ router.get('/homepage', (req, res) => {
 })
 
 router.get('/homepage/search', (req, res) => {
-  res.render('index')
+  let session = req.session
+  console.log(session, "in session line 25")
+  if (session.userid) {
+    res.render('index', { username: session.username, profilepic: session.picture })
+  }
+  else {
+    res.redirect("/")
+  }
+
+
 })
 
 router.get('/privacy-policy', (req, res) => {
@@ -31,11 +40,20 @@ router.get('/privacy-policy', (req, res) => {
 
 router.get('/oauth/googleapi', googleauth.authorize)
 
-router.get('/oauth/callback', googleauth.getAccessToken)
+router.get('/oauth/callback', async (req, res, next) => {
+  await googleauth.getAccessToken(req, res, next)
+  next()
+})
 
 router.get('/api/data/search-channel', controller.searchChannel)
 
 router.get('/api/data/search', controller.searchQuery)
+
+
+router.get('/logout', (req, res) => {
+  req.session.destroy();
+  res.redirect('/');
+})
 
 
 
