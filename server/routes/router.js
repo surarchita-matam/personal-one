@@ -20,11 +20,12 @@ router.get('/homepage', (req, res) => {
   res.render('homepage')
 })
 
-router.get('/homepage/search', (req, res) => {
+router.get('/homepage/search', (req, res, next) => {
   let session = req.session
-  console.log(session, "in session line 25")
+
   if (session.userid) {
     res.render('index', { username: session.username, profilepic: session.picture })
+    next()
   }
   else {
     res.redirect("/")
@@ -40,9 +41,8 @@ router.get('/privacy-policy', (req, res) => {
 
 router.get('/oauth/googleapi', googleauth.authorize)
 
-router.get('/oauth/callback', async (req, res, next) => {
-  await googleauth.getAccessToken(req, res, next)
-  next()
+router.get('/oauth/callback', googleauth.getAccessToken, async (req, res, next) => {
+  return res.redirect('/homepage/search')
 })
 
 router.get('/api/data/search-channel', controller.searchChannel)

@@ -101,13 +101,10 @@ let Projectoneusers = mongoose.model('projectoneusers', userschema)
 var accesstoken = false;
 
 const storeUsers = async (details, access_token, refresh_token) => {
-  console.log("In Store users")
   let userfound = await Projectoneusers.findOne({ id: details.sub })
-  console.log(userfound, "userfound")
   accesstoken = access_token
   if (userfound) {
     let updated = await Projectoneusers.updateOne({ id: details.sub }, { $set: { access_token } })
-    console.log(updated, "updated")
   }
   else {
     let user = [{
@@ -129,23 +126,12 @@ const storeUsers = async (details, access_token, refresh_token) => {
   }
 
 
-}
-
-const retrieveTokens = async () => {
-  if (accesstoken) {
-
-    return accesstoken
-  }
-  else {
-    return redirect('/logout')
-  }
-
 
 }
+
 
 module.exports = {
   storeDetails,
   retriveDetails,
-  storeUsers,
-  retrieveTokens
+  storeUsers
 }
