@@ -13,7 +13,6 @@ const OAuth2 = google.auth.OAuth2
 const credentials = require("../utils/credentials.json");
 const { nextTick } = require("process");
 
-const TOKEN_PATH = path.resolve(__dirname, "../utils/token.json")
 
 const SCOPES = [
   "https://www.googleapis.com/auth/youtube",
@@ -40,7 +39,7 @@ const authorize = (req, res) => {
   return res.render('auth', { link: loginLink });
 };
 
-const getAccessToken = async (req, res) => {
+const getAccessToken = async (req, res, next) => {
   // Create an OAuth2 client object from the credentials 
   const oauth2Client = new OAuth2(
     credentials.web.client_id,
@@ -55,7 +54,9 @@ const getAccessToken = async (req, res) => {
     let { tokens } = oauth2Client.getToken(req.query.code)
 
     oauth2Client.setCredentials(tokens);
-
+    // fs.writeFile(TOKEN_PATH, JSON.stringify(tokens), (err) => {
+    //   if (err) console.log(`error while writing the token.json file ${err}`)
+    // })
     let userdetails;
     let user
     oauth2Client.on('tokens', async (tokens) => {
@@ -64,9 +65,7 @@ const getAccessToken = async (req, res) => {
       let refresh_token = tokens.refresh_token ? tokens.refresh_token : false
 
       // Storing the token in the token.json
-      fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-        if (err) console.log(`error while writing the token.json file ${err}`)
-      })
+
       userdetails = await controller.userInfo(tokens.access_token, refresh_token)
       console.log(userdetails, "userdetails11")
       let session = req.session
@@ -74,17 +73,31 @@ const getAccessToken = async (req, res) => {
       session.username = userdetails.given_name
       session.picture = userdetails.picture
       session.email = userdetails.email
+      session.access_token = tokens.access_token
       req.session.save();
-      console.log(req.session, 'in session line 71')
 
       await storeUsers(userdetails, tokens.access_token, refresh_token)
+      next()
 
     });
 
-    return res.redirect("/homepage/search");
 
   }
 };
+
+
+// const getTokens = async (req, res) => {
+//   let session = req.session
+//   console.log(session)
+//   if (session.userid) {
+//     return session.access_token
+//   }
+//   else {
+//     return res.redirect('/')
+//   }
+
+// }
+
 
 
 

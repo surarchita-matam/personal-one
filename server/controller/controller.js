@@ -3,7 +3,6 @@ const axios = require('axios')
 const storeModel = require('../model/model')
 const oauth = require('../services/auth')
 const google = require("googleapis").google;
-const tokens = require("../utils/token.json")
 const credentials = require('../utils/credentials.json')
 
 
@@ -26,31 +25,37 @@ exports.userInfo = async (access_token, refresh_token) => {
 
 
 exports.fetchDetails = async (req, res) => {
-  // console.log(req.session, "infetchdetails")
-  // let access_token = await storeModel.retrieveTokens()
-  let date = new Date()
-  const requestPayload = {
-    method: 'get',
-    url: 'https://www.googleapis.com/youtube/v3/search',
-    params: {
-      'key': credentials.web.API_KEY,
-      'type': 'video',
-      'publishedAfter': new Date(date.setDate(date.getDate() - 1)),
-      'order': 'date',
-      'part': 'snippet',
-      'relevanceLanguage': 'en'
-    },
-    headers: {
-      "Authorization": `Bearer ${tokens.access_token}`
+  console.log(req.session, "infetchdetails")
+  if (req.session && req.session.userid) {
+    let access_token = req.session.access_token
+    let date = new Date()
+    const requestPayload = {
+      method: 'get',
+      url: 'https://www.googleapis.com/youtube/v3/search',
+      params: {
+        'key': credentials.web.API_KEY,
+        'type': 'video',
+        'publishedAfter': new Date(date.setDate(date.getDate() - 1)),
+        'order': 'date',
+        'part': 'snippet',
+        'relevanceLanguage': 'en'
+      },
+      headers: {
+        "Authorization": `Bearer ${access_token}`
+      }
+    }
+    const { data: response } = await axios(requestPayload);
+
+    console.log(response)
+
+    if (response.items.length > 0) {
+      storeModel.storeDetails(response.items)
     }
   }
-  const { data: response } = await axios(requestPayload);
-
-  console.log(response)
-
-  if (response.items.length > 0) {
-    storeModel.storeDetails(response.items)
+  else {
+    return res.status("400").send("User is not validated")
   }
+
 }
 
 exports.searchChannel = async (req, res) => {

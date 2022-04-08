@@ -45,16 +45,18 @@ connectDB()
 app.use(bodyparser.urlencoded({ extended: true }))
 
 app.use('/', require('./server/routes/router'))
+app.use('/homepage/search', (req, res) => {
+
+  var minutes = 20, the_interval = minutes * 60 * 1000;
+
+  setInterval(function (req, res) {
+    console.log("I am doing my 5 minutes check");
+    controller.fetchDetails(req, res)
+    // do your stuff here
+  }, the_interval, req, res);
+})
 
 
-var minutes = 20, the_interval = minutes * 60 * 1000;
-
-setInterval(function () {
-  console.log("I am doing my 5 minutes check");
-  // console.log(req.session, "in session line 54")
-  controller.fetchDetails()
-  // do your stuff here
-}, the_interval);
 
 
 
